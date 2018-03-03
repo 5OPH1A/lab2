@@ -296,7 +296,11 @@ Exercise 14: Reimplement zip along the same lines, in zip_2 below.
 ......................................................................*)
 
 let rec zip_2 (x : int list) (y : int list) : ((int * int) list) option =
-  failwith "zip_2 not implemented" ;;
+  match x, y with
+  | [], [] -> Some []
+  | h1 :: t1, h2 :: t2 ->
+    maybe (fun ztl -> ((h1, h2) :: ztl)) (zip_2 t1 t2)
+  | _, _ -> None
 
 (*......................................................................
 Exercise 15: For the energetic, reimplement max_list along the same
@@ -305,7 +309,11 @@ function always passes along the None.
 ......................................................................*)
 
 let rec max_list_2 (lst : int list) : int option =
-  failwith "max_list not implemented" ;;
+  match lst with
+  | [] -> None
+  | [x] -> Some x
+  | h :: t ->
+    maybe (fun max_tail -> max h max_tail) (max_list_2 t)
 
 (*======================================================================
 Part 5: Record types
@@ -353,7 +361,7 @@ For example:
 let transcript (enrollments : enrollment list)
                (student : int)
              : enrollment list =
-  failwith "transcript not implemented" ;;
+  filter (fun enrollment -> enrollment.id = student) enrollments ;;
 
 (*......................................................................
 Exercise 17: Define a function called ids that takes an enrollment
@@ -366,8 +374,9 @@ For example:
 - : int list = [1; 2; 5]
 ......................................................................*)
 
-let ids (enrollments: enrollment list) : int list =
-  failwith "ids not implemented" ;;
+let rec ids (enrollments: enrollment list) : int list =
+  let lst = sort_uniq (fun a b -> a.id - b.id) enrollments in
+  map (fun x -> x.id) lst
 
 (*......................................................................
 Exercise 18: Define a function called verify that determines whether all
