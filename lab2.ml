@@ -374,7 +374,7 @@ For example:
 - : int list = [1; 2; 5]
 ......................................................................*)
 
-let rec ids (enrollments: enrollment list) : int list =
+let ids (enrollments: enrollment list) : int list =
   let lst = sort_uniq (fun a b -> a.id - b.id) enrollments in
   map (fun x -> x.id) lst
 
@@ -389,4 +389,12 @@ For example:
 ......................................................................*)
 
 let verify (enrollments : enrollment list) : bool =
-  failwith "verify not implemented" ;;
+  let names (enrollments: enrollment list) : string list =
+    let lst = sort_uniq (fun a b -> if a.name < b.name then (-1)
+                                    else if a.name = b.name then 0
+                                    else 1) enrollments in
+    map (fun x -> x.name) lst in
+  for_all (fun l -> length l = 1)
+          (map (fun student -> names (transcript enrollments student))
+               (ids enrollments))
+
