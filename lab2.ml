@@ -115,8 +115,15 @@ instead of an int.
 ......................................................................*)
 
 let max_list (lst : int list) : int option =
-  failwith "max_list not implemented" ;;
-
+  match lst with
+  | [] -> None
+  | _h :: _t ->
+    let rec max_lst l =
+      match l with
+      | [] -> raise (Invalid_argument "don't call max_lst on an empty list")
+      | [x] -> x
+      | h :: t -> max h (max_lst t) in
+    Some (max_lst lst)
 (*......................................................................
 Exercise 5: Write a function to return the smaller of two int options,
 or None if both are None. If exactly one argument is None, return the
@@ -125,7 +132,11 @@ useful.
 ......................................................................*)
 
 let min_option (x : int option) (y : int option) : int option =
-  failwith "min_option not implemented" ;;
+  match x, y with
+  | None, None -> None
+  | Some _, None -> x
+  | None, Some _ -> y
+  | Some a, Some b -> Some (min a b)
 
 (*......................................................................
 Exercise 6: Write a function to return the larger of two int options, or
@@ -134,7 +145,11 @@ other.
 ......................................................................*)
 
 let max_option (x : int option) (y : int option) : int option =
-  failwith "max_option not implemented" ;;
+  match x, y with
+  | None, None -> None
+  | Some _, None -> x
+  | None, Some _ -> y
+  | Some a, Some b -> Some (max a b)
 
 (*======================================================================
 Part 3: Polymorphism practice
