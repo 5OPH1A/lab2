@@ -169,8 +169,15 @@ result appropriately returned.
 What is calc_option's function signature? Implement calc_option.
 ......................................................................*)
 
-let calc_option =
-  fun _ -> failwith "calc_option not implemented" ;;
+let calc_option (f: 'a -> 'b -> 'c)
+                (x: 'a option)
+                (y: 'b option)
+              : 'c option =
+  match x, y with
+  | None, None -> None
+  | None, Some _ -> y
+  | Some _, None -> x
+  | Some a, Some b -> Some (f a b)
 
 (*......................................................................
 Exercise 8: Now rewrite min_option and max_option using the higher-order
@@ -178,10 +185,10 @@ function calc_option. Call them min_option_2 and max_option_2.
 ......................................................................*)
 
 let min_option_2 =
-  fun _ -> failwith "min_option_2 not implemented" ;;
+  calc_option min
 
 let max_option_2 =
-  fun _ -> failwith "max_option_2 not implemented" ;;
+  calc_option max
 
 (*......................................................................
 Exercise 9: Now that we have calc_option, we can use it in other
@@ -192,7 +199,7 @@ None, return the other.
 ......................................................................*)
 
 let and_option =
-  fun _ -> failwith "and_option not implemented" ;;
+  calc_option ( && )
 
 (*......................................................................
 Exercise 10: In Lab 1, you implemented a function zip that takes two
@@ -211,8 +218,11 @@ type of the result? Did you provide full typing information in the
 first line of the definition?
 ......................................................................*)
 
-let zip_exn =
-  fun _ -> failwith "zip_exn not implemented" ;;
+let rec zip_exn (x: 'a list) (y: 'b list) : ('a * 'b) list =
+  match x, y with
+  | [], [] -> []
+  | [], _  | _, [] -> raise (Invalid_argument "mismatched list lengths")
+  | h1 :: t1, h2 :: t2 -> (h1, h2) :: zip_exn t1 t2
 
 (*......................................................................
 Exercise 11: Another problem with the implementation of zip_exn is that,
@@ -223,8 +233,12 @@ generate an alternate solution without this property?
 Do so below in a new definition of zip.
 ......................................................................*)
 
-let zip =
-  fun _ -> failwith "zip not implemented" ;;
+let rec zip x y =
+  match x, y with
+  | [], [] -> []
+  | [], h :: t -> (None, Some h) :: zip x t
+  | h :: t, [] -> (Some h, None) :: zip t y
+  | h1 :: t1, h2 :: t2 -> (Some h1, Some h2) :: zip t1 t2
 
 (*====================================================================
 Part 4: Factoring out None-handling
@@ -257,7 +271,9 @@ adjusted for the result type. Implement the maybe function.
 ......................................................................*)
 
 let maybe (f : 'a -> 'b) (x : 'a option) : 'b option =
-  failwith "maybe not implemented" ;;
+  match x with
+  | None -> None
+  | Some a -> Some (f a)
 
 (*......................................................................
 Exercise 13: Now reimplement dotprod to use the maybe function. (The
