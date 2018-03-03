@@ -221,7 +221,6 @@ first line of the definition?
 let rec zip_exn (x: 'a list) (y: 'b list) : ('a * 'b) list =
   match x, y with
   | [], [] -> []
-  | [], _  | _, [] -> raise (Invalid_argument "mismatched list lengths")
   | h1 :: t1, h2 :: t2 -> (h1, h2) :: zip_exn t1 t2
 
 (*......................................................................
@@ -235,10 +234,12 @@ Do so below in a new definition of zip.
 
 let rec zip x y =
   match x, y with
-  | [], [] -> []
-  | [], h :: t -> (None, Some h) :: zip x t
-  | h :: t, [] -> (Some h, None) :: zip t y
-  | h1 :: t1, h2 :: t2 -> (Some h1, Some h2) :: zip t1 t2
+  | [], [] -> Some []
+  | h1 :: t1, h2 :: t2 ->
+    (match zip t1 t2 with
+    | None -> None
+    | Some thing -> Some ((h1, h2) :: thing))
+  | _, _ -> None
 
 (*====================================================================
 Part 4: Factoring out None-handling
@@ -287,7 +288,8 @@ let sum : int list -> int =
   List.fold_left (+) 0 ;;
 
 let dotprod (a : int list) (b : int list) : int option =
-  failwith "dot_prod not implemented" ;;
+  maybe sum (maybe prods (zip a b)) ;;
+
 
 (*......................................................................
 Exercise 14: Reimplement zip along the same lines, in zip_2 below.
